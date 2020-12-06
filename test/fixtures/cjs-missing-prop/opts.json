@@ -1,0 +1,4 @@
+{
+  "modules": ["./math"],
+  "throws": "cannot access `math.missing`, it’s not defined"
+}

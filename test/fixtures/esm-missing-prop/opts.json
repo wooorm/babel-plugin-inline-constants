@@ -1,0 +1,4 @@
+{
+  "modules": ["./math.mjs"],
+  "throws": "cannot access `missing` from"
+}

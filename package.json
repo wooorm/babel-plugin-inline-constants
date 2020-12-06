@@ -1,0 +1,65 @@
+{
+  "name": "babel-plugin-inline-constants",
+  "version": "0.0.0",
+  "description": "Babel plugin to inline constants",
+  "license": "MIT",
+  "keywords": [
+    "babel",
+    "plugin",
+    "inline",
+    "constant"
+  ],
+  "repository": "wooorm/babel-plugin-inline-constants",
+  "bugs": "https://github.com/wooorm/babel-plugin-inline-constants/issues",
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/wooorm"
+  },
+  "author": "Titus Wormer <tituswormer@gmail.com> (https://wooorm.com)",
+  "contributors": [
+    "Titus Wormer <tituswormer@gmail.com> (https://wooorm.com)"
+  ],
+  "files": [
+    "index.js"
+  ],
+  "dependencies": {
+    "do-sync": "^2.0.0",
+    "resolve": "^1.0.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.0.0",
+    "@babel/core": "^7.0.0",
+    "charcodes": "^0.2.0",
+    "prettier": "^2.0.0",
+    "remark-cli": "^9.0.0",
+    "remark-preset-wooorm": "^8.0.0",
+    "tape": "^5.0.0",
+    "xo": "^0.35.0"
+  },
+  "scripts": {
+    "format": "remark . -qfo && prettier . -w --loglevel warn && xo --fix",
+    "test-api": "node test",
+    "test": "npm run format && npm run test-api"
+  },
+  "prettier": {
+    "tabWidth": 2,
+    "useTabs": false,
+    "singleQuote": true,
+    "bracketSpacing": false,
+    "semi": false,
+    "trailingComma": "none"
+  },
+  "xo": {
+    "prettier": true,
+    "esnext": false,
+    "rules": {
+      "unicorn/no-fn-reference-in-iterator": "off",
+      "unicorn/prefer-optional-catch-binding": "off"
+    }
+  },
+  "remarkConfig": {
+    "plugins": [
+      "preset-wooorm"
+    ]
+  }
+}

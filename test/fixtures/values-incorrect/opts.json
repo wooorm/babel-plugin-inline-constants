@@ -1,0 +1,4 @@
+{
+  "modules": ["./c"],
+  "throws": "cannot handle non-literal"
+}
