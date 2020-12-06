@@ -18,6 +18,8 @@ primitives (numbers, strings, booleans, null).
 npm install babel-plugin-inline-constants
 ```
 
+Node 12 or higher are required when using ESM.
+
 ## Use
 
 First, this plugin must be configured with a `pattern`, so in a `.babelrc`, do:
