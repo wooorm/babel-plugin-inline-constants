@@ -1,5 +1,6 @@
 module.exports = inlineConstants
 
+var url = require('url')
 var path = require('path')
 var resolve = require('resolve')
 var doSync = require('do-sync').doSync
@@ -62,7 +63,7 @@ function importDeclaration(p, state) {
     try {
       module = require(absolute)
     } catch (_) {
-      module = doSync((fp) => import(fp))(absolute)
+      module = doSync((fp) => import(fp))(url.pathToFileURL(absolute))
     }
 
     p.node.specifiers.forEach(each)

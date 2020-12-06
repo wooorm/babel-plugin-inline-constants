@@ -80,9 +80,9 @@ test('babel-plugin-inline-constants (fixtures)', function (t) {
       }
 
       try {
-        expected = String(
-          fs.readFileSync(path.join(dir, 'expected-' + main))
-        ).replace(/\r?\n$/, '')
+        expected = String(fs.readFileSync(path.join(dir, 'expected-' + main)))
+          .replace(/\r\n/g, '\n')
+          .replace(/\n$/, '')
       } catch {
         expected = actual
         fs.writeFileSync(path.join(dir, 'expected-' + main), actual)
