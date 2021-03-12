@@ -34,7 +34,7 @@
     "remark-cli": "^9.0.0",
     "remark-preset-wooorm": "^8.0.0",
     "tape": "^5.0.0",
-    "xo": "^0.35.0"
+    "xo": "^0.38.0"
   },
   "scripts": {
     "format": "remark . -qfo && prettier . -w --loglevel warn && xo --fix",
@@ -53,7 +53,7 @@
     "prettier": true,
     "esnext": false,
     "rules": {
-      "unicorn/no-fn-reference-in-iterator": "off",
+      "import/no-mutable-exports": "off",
       "unicorn/prefer-optional-catch-binding": "off"
     }
   },

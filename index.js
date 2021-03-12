@@ -57,6 +57,9 @@ function importDeclaration(p, state) {
     (state.inlineConstantsModules = Object.create(null))
   var absolute = find(p.node.source.value, state)
   var module
+  var specifiers
+  var specifier
+  var index
 
   if (absolute && state.opts._modules.includes(absolute)) {
     // It’s not pretty, but hey, it seems to work.
@@ -66,38 +69,42 @@ function importDeclaration(p, state) {
       module = doSync((fp) => import(fp))(url.pathToFileURL(absolute))
     }
 
-    p.node.specifiers.forEach(each)
-    p.remove()
-  }
+    specifiers = p.node.specifiers
+    index = -1
 
-  function each(s) {
-    /* istanbul ignore else - if there are other specifiers, exit. */
-    if (
-      s.type === 'ImportDefaultSpecifier' &&
-      s.local &&
-      s.local.type === 'Identifier'
-    ) {
-      localModules[s.local.name] = module.default
-    } else if (
-      s.type === 'ImportSpecifier' &&
-      s.imported &&
-      s.local &&
-      s.local.type === 'Identifier'
-    ) {
-      if (!(s.imported.name in module)) {
-        throw new Error(
-          'babel-plugin-inline-constants: cannot access `' +
-            s.imported.name +
-            '` from `' +
-            p.node.source.value +
-            '`'
-        )
+    while (++index < specifiers.length) {
+      specifier = specifiers[index]
+
+      /* istanbul ignore else - if there are other specifiers, exit. */
+      if (
+        specifier.type === 'ImportDefaultSpecifier' &&
+        specifier.local &&
+        specifier.local.type === 'Identifier'
+      ) {
+        localModules[specifier.local.name] = module.default
+      } else if (
+        specifier.type === 'ImportSpecifier' &&
+        specifier.imported &&
+        specifier.local &&
+        specifier.local.type === 'Identifier'
+      ) {
+        if (!(specifier.imported.name in module)) {
+          throw new Error(
+            'babel-plugin-inline-constants: cannot access `' +
+              specifier.imported.name +
+              '` from `' +
+              p.node.source.value +
+              '`'
+          )
+        }
+
+        localModules[specifier.local.name] = module[specifier.imported.name]
+      } else {
+        throw new Error('Cannot handle specifier `' + specifier.type + '`')
       }
-
-      localModules[s.local.name] = module[s.imported.name]
-    } else {
-      throw new Error('Cannot handle specifier `' + s.type + '`')
     }
+
+    p.remove()
   }
 }
 

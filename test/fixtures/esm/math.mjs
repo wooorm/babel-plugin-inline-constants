@@ -1,2 +1,3 @@
 export const pi = 3.14
-export default {pi2: pi}
+var object = {pi2: pi}
+export default object

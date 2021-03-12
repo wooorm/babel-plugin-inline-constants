@@ -35,61 +35,65 @@ test('babel-plugin-inline-constants (core)', function (t) {
 
 test('babel-plugin-inline-constants (fixtures)', function (t) {
   var base = path.join(__dirname, 'fixtures')
+  var names = fs.readdirSync(base).filter((d) => d.charAt(0) !== '.')
+  var index = -1
+  var name
+  var dir
+  var files
+  var main
+  var input
+  var options
+  var actual
+  var expected
 
-  fs.readdirSync(base)
-    .filter((d) => d.charAt(0) !== '.')
-    .forEach(function (name) {
-      var dir = path.join(base, name)
-      var files = fs.readdirSync(dir)
-      var main = files.find(
-        (d) => path.basename(d, path.extname(d)) === 'index'
-      )
-      var input = String(fs.readFileSync(path.join(dir, main))).replace(
-        /\r?\n$/,
-        ''
-      )
-      var options = {}
-      var actual = ''
-      var expected = ''
+  while (++index < names.length) {
+    name = names[index]
+    dir = path.join(base, name)
+    files = fs.readdirSync(dir)
+    main = files.find((d) => path.basename(d, path.extname(d)) === 'index')
+    input = String(fs.readFileSync(path.join(dir, main))).replace(/\r?\n$/, '')
+    options = {}
+    actual = ''
+    expected = ''
 
-      try {
-        options = JSON.parse(fs.readFileSync(path.join(dir, 'opts.json')))
-      } catch {}
+    try {
+      options = JSON.parse(fs.readFileSync(path.join(dir, 'opts.json')))
+    } catch {}
 
-      try {
-        actual = babel.transformSync(input, {
-          configFile: false,
-          cwd: dir,
-          filename: main,
-          plugins: [[plugin, options]]
-        }).code
-      } catch (error) {
-        if (options.throws) {
-          t.throws(
-            function () {
-              throw error
-            },
-            new RegExp(options.throws),
-            name
-          )
+    try {
+      actual = babel.transformSync(input, {
+        configFile: false,
+        cwd: dir,
+        filename: main,
+        plugins: [[plugin, options]]
+      }).code
+    } catch (error) {
+      if (options.throws) {
+        t.throws(
+          function () {
+            throw error
+          },
+          new RegExp(options.throws),
+          name
+        )
 
-          return
-        }
-
-        throw error
+        continue
       }
 
-      try {
-        expected = String(fs.readFileSync(path.join(dir, 'expected-' + main)))
-          .replace(/\r\n/g, '\n')
-          .replace(/\n$/, '')
-      } catch {
-        expected = actual
-        fs.writeFileSync(path.join(dir, 'expected-' + main), actual)
-      }
+      throw error
+    }
 
-      t.equal(actual, expected, name)
-    })
+    try {
+      expected = String(fs.readFileSync(path.join(dir, 'expected-' + main)))
+        .replace(/\r\n/g, '\n')
+        .replace(/\n$/, '')
+    } catch {
+      expected = actual
+      fs.writeFileSync(path.join(dir, 'expected-' + main), actual)
+    }
+
+    t.equal(actual, expected, name)
+  }
 
   t.end()
 })
