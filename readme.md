@@ -1,6 +1,7 @@
 # babel-plugin-inline-constants
 
 [![Build][build-badge]][build]
+[![Coverage][coverage-badge]][coverage]
 [![Downloads][downloads-badge]][downloads]
 
 [Babel][] plugin to inline constants in code.
@@ -136,6 +137,10 @@ To ignore the error when modules cannot be found, set `ignoreModuleNotFound` to
 [build-badge]: https://github.com/wooorm/babel-plugin-inline-constants/workflows/main/badge.svg
 
 [build]: https://github.com/wooorm/babel-plugin-inline-constants/actions
+
+[coverage-badge]: https://img.shields.io/codecov/c/github/wooorm/babel-plugin-inline-constants.svg
+
+[coverage]: https://codecov.io/github/wooorm/babel-plugin-inline-constants
 
 [downloads-badge]: https://img.shields.io/npm/dm/babel-plugin-inline-constants.svg
 

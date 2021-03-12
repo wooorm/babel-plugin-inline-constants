@@ -77,7 +77,6 @@ function importDeclaration(p, state) {
     while (++index < specifiers.length) {
       specifier = specifiers[index]
 
-      /* istanbul ignore else - if there are other specifiers, exit. */
       if (
         specifier.type === 'ImportDefaultSpecifier' &&
         specifier.local &&
@@ -101,6 +100,7 @@ function importDeclaration(p, state) {
         }
 
         localModules[specifier.local.name] = module[specifier.imported.name]
+        /* c8 ignore next 3 */
       } else {
         throw new Error('Cannot handle specifier `' + specifier.type + '`')
       }
