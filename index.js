@@ -3,7 +3,7 @@ module.exports = inlineConstants
 var url = require('url')
 var path = require('path')
 var resolve = require('resolve')
-var doSync = require('do-sync').doSync
+var deasync = require('deasync')
 
 function inlineConstants(_, options, cwd) {
   if (!Array.isArray(options.modules)) {
@@ -66,7 +66,9 @@ function importDeclaration(p, state) {
     try {
       module = require(absolute)
     } catch (_) {
-      module = doSync((fp) => import(fp))(url.pathToFileURL(absolute))
+      module = deasync((fp, cb) => import(fp).then((m) => cb(null, m), cb))(
+        url.pathToFileURL(absolute)
+      )
     }
 
     specifiers = p.node.specifiers
