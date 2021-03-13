@@ -1,0 +1,4 @@
+{
+  "modules": ["./math.js"],
+  "throws": "cannot access default export from `./math.js`"
+}
