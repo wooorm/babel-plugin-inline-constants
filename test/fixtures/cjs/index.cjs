@@ -1,4 +1,4 @@
-var math = require('./math')
+var math = require('./math.cjs')
 
 var double = 2 * math.pi
 

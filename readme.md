@@ -13,13 +13,14 @@ primitives (numbers, strings, booleans, null).
 
 ## Install
 
+This package is ESM only: Node 12+ is needed to use it and it must be `import`ed
+instead of `require`d.
+
 [npm][]:
 
 ```sh
 npm install babel-plugin-inline-constants
 ```
-
-Node 12 or higher are required when using ESM.
 
 ## Use
 
@@ -67,20 +68,20 @@ Or with ESM (which requires extensions):
 
 ```json
 {
-  "plugins": [["babel-plugin-inline-constants", {"modules": "./math.mjs"}]]
+  "plugins": [["babel-plugin-inline-constants", {"modules": "./math.js"}]]
 }
 ```
 
-`math.mjs`:
+`math.js`:
 
 ```js
 export const pi = 3.14
 ```
 
-`example.mjs`:
+`example.js`:
 
 ```js
-import {pi} from './math.mjs'
+import {pi} from './math.js'
 
 console.log('one pi:', pi)
 console.log('two pi:', 2 * pi)
@@ -90,12 +91,15 @@ console.log('pi pi:', pi * pi)
 Then running Babel:
 
 ```sh
-babel example.mjs
+babel example.js
 ```
 
 Yields the same as above.
 
 ## API
+
+This package exports no identifiers..
+There is only a default export.
 
 ### `babel-plugin-inline-constants`
 

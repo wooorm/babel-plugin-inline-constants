@@ -1,4 +1,4 @@
-var c = require('./c')
+var c = require('./c.cjs')
 
 console.log(c.number)
 console.log(c.string)

@@ -1,10 +1,8 @@
-'use strict'
-
-var fs = require('fs')
-var path = require('path')
-var test = require('tape')
-var babel = require('@babel/core')
-var plugin = require('..')
+import fs from 'fs'
+import path from 'path'
+import test from 'tape'
+import babel from '@babel/core'
+import plugin from '../index.js'
 
 test('babel-plugin-inline-constants (core)', function (t) {
   t.throws(
@@ -34,7 +32,7 @@ test('babel-plugin-inline-constants (core)', function (t) {
 })
 
 test('babel-plugin-inline-constants (fixtures)', function (t) {
-  var base = path.join(__dirname, 'fixtures')
+  var base = path.join('test', 'fixtures')
   var names = fs.readdirSync(base).filter((d) => d.charAt(0) !== '.')
   var index = -1
   var name

@@ -1,4 +1,4 @@
-import math, {pi} from './math.mjs'
+import math, {pi} from './math.js'
 
 console.log('one pi:', math.pi2)
 console.log('two pi:', 2 * pi)

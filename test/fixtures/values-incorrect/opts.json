@@ -1,4 +1,4 @@
 {
-  "modules": ["./c"],
+  "modules": ["./c.cjs"],
   "throws": "cannot handle non-literal"
 }

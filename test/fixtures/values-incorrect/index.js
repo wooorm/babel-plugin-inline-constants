@@ -1,3 +1,3 @@
-var c = require('./c')
+var c = require('./c.cjs')
 
 console.log(c.regex)

@@ -1,4 +1,4 @@
 {
-  "modules": ["./math"],
+  "modules": ["./math.cjs"],
   "throws": "cannot access `math.missing`, it’s not defined"
 }

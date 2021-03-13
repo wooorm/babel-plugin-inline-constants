@@ -1,11 +1,12 @@
-module.exports = inlineConstants
+import url from 'url'
+import path from 'path'
+import resolve from 'resolve'
+import deasync from 'deasync'
+import {createRequire} from 'module'
 
-var url = require('url')
-var path = require('path')
-var resolve = require('resolve')
-var deasync = require('deasync')
+var require = createRequire(import.meta.url)
 
-function inlineConstants(_, options, cwd) {
+export default function inlineConstants(_, options, cwd) {
   if (!Array.isArray(options.modules)) {
     throw new TypeError(
       'babel-plugin-inline-constants: expected a `modules` array to be passed'
@@ -178,5 +179,5 @@ function toLiteral(value) {
     )
   }
 
-  return {type: type + 'Literal', value: value}
+  return {type: type + 'Literal', value}
 }
