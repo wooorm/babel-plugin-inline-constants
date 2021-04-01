@@ -98,7 +98,7 @@ Yields the same as above.
 
 ## API
 
-This package exports no identifiers..
+This package exports no identifiers.
 There is only a default export.
 
 ### `babel-plugin-inline-constants`
