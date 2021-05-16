@@ -93,6 +93,7 @@ export default async function inlineConstants(babel, options, cwd) {
       Identifier: identifier
     }
   }
+  /* c8 ignore next 6 */
 
   /**
    * @param {NodePath} p
@@ -126,6 +127,7 @@ export default async function inlineConstants(babel, options, cwd) {
       }
     }
   }
+  /* c8 ignore next 6 */
 
   /**
    * @param {NodePath} p
@@ -201,6 +203,7 @@ export default async function inlineConstants(babel, options, cwd) {
       }
     }
   }
+  /* c8 ignore next 6 */
 
   /**
    * @param {NodePath} p
@@ -239,6 +242,7 @@ export default async function inlineConstants(babel, options, cwd) {
       }
     }
   }
+  /* c8 ignore next 6 */
 
   /**
    * @param {NodePath} p
@@ -254,6 +258,7 @@ export default async function inlineConstants(babel, options, cwd) {
       p.replaceWith(toLiteral(state.inlineConstantsModules[p.node.name]))
     }
   }
+  /* c8 ignore next 8 */
 
   /**
    * @param {string} value
