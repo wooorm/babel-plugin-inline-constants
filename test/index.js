@@ -4,34 +4,40 @@ import test from 'tape'
 import babel from '@babel/core'
 import plugin from '../index.js'
 
-test('babel-plugin-inline-constants (core)', function (t) {
-  t.throws(
-    function () {
-      babel.transformSync('', {
-        configFile: false,
-        filename: 'index.js',
-        plugins: [plugin]
-      })
-    },
-    /expected a `modules` array to be passed/,
-    'should fail when not passing `options.modules`'
-  )
+test('babel-plugin-inline-constants (core)', async function (t) {
+  try {
+    await babel.transformAsync('', {
+      configFile: false,
+      filename: 'index.js',
+      plugins: [plugin]
+    })
+    t.fail()
+  } catch (error) {
+    t.match(
+      String(error),
+      /expected a `modules` array to be passed/,
+      'should fail when not passing `options.modules`'
+    )
+  }
 
-  t.throws(
-    function () {
-      babel.transformSync('var d = require(".")', {
-        configFile: false,
-        plugins: [[plugin, {modules: ['.']}]]
-      })
-    },
-    /expected a `filename` to be set for files/,
-    'should fail when not passing `filename` to babel'
-  )
+  try {
+    await babel.transformAsync('var d = require(".")', {
+      configFile: false,
+      plugins: [[plugin, {modules: ['./index.js']}]]
+    })
+    t.fail()
+  } catch (error) {
+    t.match(
+      String(error),
+      /expected a `filename` to be set for files/,
+      'should fail when not passing `filename` to babel'
+    )
+  }
 
   t.end()
 })
 
-test('babel-plugin-inline-constants (fixtures)', function (t) {
+test('babel-plugin-inline-constants (fixtures)', async function (t) {
   var base = path.join('test', 'fixtures')
   var names = fs.readdirSync(base).filter((d) => d.charAt(0) !== '.')
   var index = -1
@@ -59,12 +65,14 @@ test('babel-plugin-inline-constants (fixtures)', function (t) {
     } catch {}
 
     try {
-      actual = babel.transformSync(input, {
-        configFile: false,
-        cwd: dir,
-        filename: main,
-        plugins: [[plugin, options]]
-      }).code
+      actual = (
+        await babel.transformAsync(input, {
+          configFile: false,
+          cwd: dir,
+          filename: main,
+          plugins: [[plugin, options]]
+        })
+      ).code
     } catch (error) {
       if (options.throws) {
         t.throws(

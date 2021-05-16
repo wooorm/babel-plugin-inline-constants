@@ -1,11 +1,3 @@
-import url from 'url'
-import path from 'path'
-import {createRequire} from 'module'
-import resolve from 'resolve'
-import deasync from 'deasync'
-
-var require = createRequire(import.meta.url)
-
 /**
  * @typedef {Object} Options
  * @property {string|string[]} modules List of modules to inline
@@ -22,12 +14,21 @@ var require = createRequire(import.meta.url)
  * @typedef {import('@babel/types').ImportNamespaceSpecifier} ImportNamespaceSpecifier
  */
 
+import url from 'url'
+import path from 'path'
+import resolve from 'resolve'
+import builtins from 'builtins'
+import {moduleResolve} from 'import-meta-resolve'
+
+var listOfBuiltins = builtins()
+var own = {}.hasOwnProperty
+
 /**
  * @param {import('@babel/core')} babel
  * @param {Options} options
  * @param {string} cwd
  */
-export default function inlineConstants(babel, options, cwd) {
+export default async function inlineConstants(babel, options, cwd) {
   var t = babel.types
 
   if (!Array.isArray(options.modules)) {
@@ -37,9 +38,17 @@ export default function inlineConstants(babel, options, cwd) {
   }
 
   var ignoreModuleNotFound = options.ignoreModuleNotFound
-  var modules = new Set(
-    options.modules.map((d) => resolve.sync(d, {basedir: cwd}))
-  )
+  var base = url.pathToFileURL(cwd + path.sep)
+  var ids = options.modules.map((d) => moduleResolve(d, base).href)
+  /** @type {Array.<Object.<string, unknown>>} */
+  var values = await Promise.all(ids.map((fp) => import(fp)))
+  /** @type {Object.<string, Object.<string, unknown>>} */
+  var modules = {__proto__: null}
+  var index = -1
+
+  while (++index < ids.length) {
+    modules[ids[index]] = values[index]
+  }
 
   // prettier-ignore
   /** @type {{
@@ -109,10 +118,10 @@ export default function inlineConstants(babel, options, cwd) {
       p.node.init.arguments[0] &&
       p.node.init.arguments[0].type === 'StringLiteral'
     ) {
-      absolute = find(p.node.init.arguments[0].value, state)
+      absolute = find(p.node.init.arguments[0].value, state, true)
 
-      if (absolute && modules.has(absolute)) {
-        localModules[p.node.id.name] = require(absolute)
+      if (absolute && own.call(modules, absolute)) {
+        localModules[p.node.id.name] = modules[absolute].default
         p.remove()
       }
     }
@@ -142,14 +151,8 @@ export default function inlineConstants(babel, options, cwd) {
     if (p.node.type === 'ImportDeclaration') {
       absolute = find(p.node.source.value, state)
 
-      if (absolute && modules.has(absolute)) {
-        // It’s not pretty, but hey, it seems to work.
-        try {
-          module = require(absolute)
-        } catch {
-          module = deasync(syncAsyncImport)(url.pathToFileURL(absolute))
-        }
-
+      if (absolute && own.call(modules, absolute)) {
+        module = modules[absolute]
         specifiers = p.node.specifiers
         index = -1
 
@@ -255,9 +258,10 @@ export default function inlineConstants(babel, options, cwd) {
   /**
    * @param {string} value
    * @param {PluginPass} state
+   * @param {boolean} [cjs=false]
    * @returns {string} Absolute path
    */
-  function find(value, state) {
+  function find(value, state, cjs) {
     /** @type {string} */
     var absolute
 
@@ -267,8 +271,16 @@ export default function inlineConstants(babel, options, cwd) {
       )
     }
 
+    if (listOfBuiltins.includes(value)) {
+      return 'node:' + value
+    }
+
     try {
-      absolute = resolve.sync(value, {basedir: path.dirname(state.filename)})
+      absolute = cjs
+        ? url.pathToFileURL(
+            resolve.sync(value, {basedir: path.dirname(state.filename)})
+          ).href
+        : moduleResolve(value, url.pathToFileURL(state.filename)).href
     } catch (error) {
       if (error.code === 'MODULE_NOT_FOUND' && ignoreModuleNotFound) {
         return
@@ -278,20 +290,5 @@ export default function inlineConstants(babel, options, cwd) {
     }
 
     return absolute
-  }
-}
-
-/**
- * @param {string} fp
- * @param {(err?: Error, res?: Object) => void} cb
- */
-function syncAsyncImport(fp, cb) {
-  import(fp).then(then, cb)
-
-  /**
-   * @param {Record.<string, unknown>} m
-   */
-  function then(m) {
-    cb(null, m)
   }
 }
