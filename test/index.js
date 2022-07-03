@@ -1,5 +1,7 @@
-import fs from 'node:fs'
+import assert from 'node:assert'
+import fs from 'node:fs/promises'
 import path from 'node:path'
+import {fileURLToPath} from 'node:url'
 import test from 'tape'
 import babel from '@babel/core'
 import plugin from '../index.js'
@@ -38,41 +40,41 @@ test('babel-plugin-inline-constants (core)', async function (t) {
 })
 
 test('babel-plugin-inline-constants (fixtures)', async function (t) {
-  var base = path.join('test', 'fixtures')
-  var names = fs.readdirSync(base).filter((d) => d.charAt(0) !== '.')
-  var index = -1
-  var name
-  var dir
-  var files
-  var main
-  var input
-  var options
-  var actual
-  var expected
+  const base = new URL('fixtures/', import.meta.url)
+  const files = await fs.readdir(base)
+  const names = files.filter((d) => d.charAt(0) !== '.')
+  let index = -1
 
   while (++index < names.length) {
-    name = names[index]
-    dir = path.join(base, name)
-    files = fs.readdirSync(dir)
-    main = files.find((d) => path.basename(d, path.extname(d)) === 'index')
-    input = String(fs.readFileSync(path.join(dir, main))).replace(/\r?\n$/, '')
-    options = {}
-    actual = ''
-    expected = ''
+    const name = names[index]
+    const dir = new URL(name + '/', base)
+    const files = await fs.readdir(dir)
+    const main = files.find(
+      (d) => path.basename(d, path.extname(d)) === 'index'
+    )
+    assert(main, 'expected `main`')
+    const input = String(await fs.readFile(new URL(main, dir))).replace(
+      /\r?\n$/,
+      ''
+    )
+    let options = {}
+    let actual = ''
+    let expected = ''
 
     try {
-      options = JSON.parse(fs.readFileSync(path.join(dir, 'opts.json')))
+      options = JSON.parse(String(await fs.readFile(new URL('opts.json', dir))))
     } catch {}
 
     try {
-      actual = (
-        await babel.transformAsync(input, {
-          configFile: false,
-          cwd: dir,
-          filename: main,
-          plugins: [[plugin, options]]
-        })
-      ).code
+      const result = await babel.transformAsync(input, {
+        configFile: false,
+        cwd: fileURLToPath(dir),
+        filename: main,
+        plugins: [[plugin, options]]
+      })
+      assert(result, 'babel always sets `result`')
+      assert(result.code, 'babel always sets `result.code`')
+      actual = result.code
     } catch (error) {
       if (options.throws) {
         t.throws(
@@ -90,12 +92,12 @@ test('babel-plugin-inline-constants (fixtures)', async function (t) {
     }
 
     try {
-      expected = String(fs.readFileSync(path.join(dir, 'expected-' + main)))
+      expected = String(await fs.readFile(new URL('expected-' + main, dir)))
         .replace(/\r\n/g, '\n')
         .replace(/\n$/, '')
     } catch {
       expected = actual
-      fs.writeFileSync(path.join(dir, 'expected-' + main), actual)
+      await fs.writeFile(new URL('expected-' + main, dir), actual)
     }
 
     t.equal(actual, expected, name)

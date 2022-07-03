@@ -1,4 +1,4 @@
-import assert from 'assert'
+import assert from 'node:assert'
 import {numberSign} from 'charcodes'
 
-assert.equal(numberSign, '#'.charCodeAt(0))
+assert.equal(numberSign, '#'.codePointAt(0))

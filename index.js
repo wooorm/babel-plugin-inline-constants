@@ -20,8 +20,8 @@ import resolve from 'resolve'
 import builtins from 'builtins'
 import {moduleResolve} from 'import-meta-resolve'
 
-var listOfBuiltins = builtins()
-var own = {}.hasOwnProperty
+const listOfBuiltins = builtins()
+const own = {}.hasOwnProperty
 
 /**
  * @param {import('@babel/core')} babel
@@ -29,7 +29,7 @@ var own = {}.hasOwnProperty
  * @param {string} cwd
  */
 export default async function inlineConstants(babel, options, cwd) {
-  var t = babel.types
+  const t = babel.types
 
   if (!Array.isArray(options.modules)) {
     throw new TypeError(
@@ -37,14 +37,14 @@ export default async function inlineConstants(babel, options, cwd) {
     )
   }
 
-  var ignoreModuleNotFound = options.ignoreModuleNotFound
-  var base = url.pathToFileURL(cwd + path.sep)
-  var ids = options.modules.map((d) => moduleResolve(d, base).href)
+  const ignoreModuleNotFound = options.ignoreModuleNotFound
+  const base = url.pathToFileURL(cwd + path.sep)
+  const ids = options.modules.map((d) => moduleResolve(d, base).href)
   /** @type {Array.<Object.<string, unknown>>} */
-  var values = await Promise.all(ids.map((fp) => import(fp)))
+  const values = await Promise.all(ids.map((fp) => import(fp)))
   /** @type {Object.<string, Object.<string, unknown>>} */
-  var modules = {__proto__: null}
-  var index = -1
+  const modules = {__proto__: null}
+  let index = -1
 
   while (++index < ids.length) {
     modules[ids[index]] = values[index]
@@ -60,7 +60,7 @@ export default async function inlineConstants(babel, options, cwd) {
    * }}
    */
   // @ts-expect-error: fine!
-  var toLiteral = (
+  const toLiteral = (
       /**
        * @param {string|number|boolean|null} value
        * @returns {StringLiteral|NumericLiteral|BooleanLiteral|NullLiteral}
@@ -104,11 +104,11 @@ export default async function inlineConstants(babel, options, cwd) {
    */
   function variableDeclarator(p, state) {
     /** @type {Record.<string, Object>} */
-    var localModules =
+    const localModules =
       state.inlineConstantsModules ||
       (state.inlineConstantsModules = Object.create(null))
     /** @type {string?} */
-    var absolute
+    let absolute
 
     if (
       p.node.type === 'VariableDeclarator' &&
@@ -138,20 +138,20 @@ export default async function inlineConstants(babel, options, cwd) {
    */
   function importDeclaration(p, state) {
     /** @type {Record.<string, Object>} */
-    var localModules =
+    const localModules =
       state.inlineConstantsModules ||
       (state.inlineConstantsModules = Object.create(null))
     /** @type {string} */
-    var absolute
+    let absolute
     // Assume the exported thing is an object.
     /** @type {Record.<string, unknown>} */
-    var module
+    let module
     /** @type {Array<ImportSpecifier|ImportDefaultSpecifier|ImportNamespaceSpecifier>} */
-    var specifiers
+    let specifiers
     /** @type {ImportSpecifier|ImportDefaultSpecifier|ImportNamespaceSpecifier} */
-    var specifier
+    let specifier
     /** @type {number} */
-    var index
+    let index
 
     if (p.node.type === 'ImportDeclaration') {
       absolute = find(p.node.source.value, state)
@@ -214,9 +214,9 @@ export default async function inlineConstants(babel, options, cwd) {
    */
   function memberExpression(p, state) {
     /** @type {string} */
-    var object
+    let object
     /** @type {string} */
-    var prop
+    let prop
 
     if (
       p.node.type === 'MemberExpression' &&
@@ -271,7 +271,7 @@ export default async function inlineConstants(babel, options, cwd) {
    */
   function find(value, state, cjs) {
     /** @type {string} */
-    var absolute
+    let absolute
 
     if (!state.filename) {
       throw new TypeError(

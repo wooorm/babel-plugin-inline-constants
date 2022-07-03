@@ -1,3 +1,3 @@
-var math = require('./math.cjs')
+const math = require('./math.cjs')
 
 console.log(math.missing)

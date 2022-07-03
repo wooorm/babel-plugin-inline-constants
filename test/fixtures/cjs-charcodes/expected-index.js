@@ -1,3 +1,3 @@
-var assert = require('assert');
+const assert = require('assert');
 
-assert.equal(35, '#'.charCodeAt(0));
+assert.equal(35, '#'.codePointAt(0));

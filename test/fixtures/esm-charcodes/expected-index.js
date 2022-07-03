@@ -1,2 +1,2 @@
-import assert from 'assert';
-assert.equal(35, '#'.charCodeAt(0));
+import assert from 'node:assert';
+assert.equal(35, '#'.codePointAt(0));

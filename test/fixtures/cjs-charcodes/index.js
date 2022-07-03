@@ -1,4 +1,4 @@
-var assert = require('assert')
-var cc = require('charcodes')
+const assert = require('assert')
+const cc = require('charcodes')
 
-assert.equal(cc.numberSign, '#'.charCodeAt(0))
+assert.equal(cc.numberSign, '#'.codePointAt(0))
