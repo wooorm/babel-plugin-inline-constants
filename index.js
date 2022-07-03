@@ -14,8 +14,8 @@
  * @typedef {import('@babel/types').ImportNamespaceSpecifier} ImportNamespaceSpecifier
  */
 
-import url from 'url'
-import path from 'path'
+import url from 'node:url'
+import path from 'node:path'
 import resolve from 'resolve'
 import builtins from 'builtins'
 import {moduleResolve} from 'import-meta-resolve'
@@ -51,12 +51,15 @@ export default async function inlineConstants(babel, options, cwd) {
   }
 
   // prettier-ignore
-  /** @type {{
+  /**
+   * @type {{
    *   (value: string): StringLiteral
    *   (value: number): NumericLiteral
    *   (value: boolean): BooleanLiteral
    *   (value: null): NullLiteral
-   * }} */
+   * }}
+   */
+  // @ts-expect-error: fine!
   var toLiteral = (
       /**
        * @param {string|number|boolean|null} value
