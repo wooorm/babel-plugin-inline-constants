@@ -1,7 +1,10 @@
 /**
- * @typedef {Object} Options
- * @property {string|string[]} modules List of modules to inline
- * @property {boolean} [ignoreModuleNotFound=false] Ignore the error when modules cannot be found
+ * @typedef Options
+ *   Configuration (required).
+ * @property {string|Array<string>} modules
+ *   List of modules to inline
+ * @property {boolean} [ignoreModuleNotFound=false]
+ *   Ignore the error when modules cannot be found
  *
  * @typedef {import('@babel/core').PluginPass} PluginPass
  * @typedef {import('@babel/core').NodePath} NodePath
@@ -40,9 +43,9 @@ export default async function inlineConstants(babel, options, cwd) {
   const ignoreModuleNotFound = options.ignoreModuleNotFound
   const base = url.pathToFileURL(cwd + path.sep)
   const ids = options.modules.map((d) => moduleResolve(d, base).href)
-  /** @type {Array.<Object.<string, unknown>>} */
+  /** @type {Array<Record<string, unknown>>} */
   const values = await Promise.all(ids.map((fp) => import(fp)))
-  /** @type {Object.<string, Object.<string, unknown>>} */
+  /** @type {Record<string, Record<string, unknown>>} */
   const modules = {__proto__: null}
   let index = -1
 
@@ -103,7 +106,7 @@ export default async function inlineConstants(babel, options, cwd) {
    * @param {PluginPass} state
    */
   function variableDeclarator(p, state) {
-    /** @type {Record.<string, Object>} */
+    /** @type {Record<string, unknown>} */
     const localModules =
       state.inlineConstantsModules ||
       (state.inlineConstantsModules = Object.create(null))
@@ -137,14 +140,14 @@ export default async function inlineConstants(babel, options, cwd) {
    * @param {PluginPass} state
    */
   function importDeclaration(p, state) {
-    /** @type {Record.<string, Object>} */
+    /** @type {Record<string, unknown>} */
     const localModules =
       state.inlineConstantsModules ||
       (state.inlineConstantsModules = Object.create(null))
     /** @type {string} */
     let absolute
     // Assume the exported thing is an object.
-    /** @type {Record.<string, unknown>} */
+    /** @type {Record<string, unknown>} */
     let module
     /** @type {Array<ImportSpecifier|ImportDefaultSpecifier|ImportNamespaceSpecifier>} */
     let specifiers
@@ -213,18 +216,13 @@ export default async function inlineConstants(babel, options, cwd) {
    * @param {PluginPass} state
    */
   function memberExpression(p, state) {
-    /** @type {string} */
-    let object
-    /** @type {string} */
-    let prop
-
     if (
       p.node.type === 'MemberExpression' &&
       p.node.object.type === 'Identifier' &&
       p.node.property.type === 'Identifier'
     ) {
-      object = p.node.object.name
-      prop = p.node.property.name
+      const object = p.node.object.name
+      const prop = p.node.property.name
 
       if (
         state.inlineConstantsModules &&
