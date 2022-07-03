@@ -51,14 +51,14 @@ npm install babel-plugin-inline-constants
 In Deno with [`esm.sh`][esmsh]:
 
 ```js
-import inlineConstants from 'https://esm.sh/babel-plugin-inline-constants@3'
+import inlineConstants from 'https://esm.sh/babel-plugin-inline-constants@4'
 ```
 
 In browsers with [`esm.sh`][esmsh]:
 
 ```html
 <script type="module">
-  import inlineConstants from 'https://esm.sh/babel-plugin-inline-constants@3?bundle'
+  import inlineConstants from 'https://esm.sh/babel-plugin-inline-constants@4?bundle'
 </script>
 ```
 
