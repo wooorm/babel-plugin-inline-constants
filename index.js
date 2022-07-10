@@ -24,6 +24,7 @@ import builtins from 'builtins'
 import {moduleResolve} from 'import-meta-resolve'
 
 const listOfBuiltins = builtins()
+const conditions = new Set(['node', 'import'])
 const own = {}.hasOwnProperty
 
 /**
@@ -42,7 +43,9 @@ export default async function inlineConstants(babel, options, cwd) {
 
   const ignoreModuleNotFound = options.ignoreModuleNotFound
   const base = url.pathToFileURL(cwd + path.sep)
-  const ids = options.modules.map((d) => moduleResolve(d, base).href)
+  const ids = options.modules.map(
+    (d) => moduleResolve(d, base, conditions).href
+  )
   /** @type {Array<Record<string, unknown>>} */
   const values = await Promise.all(ids.map((fp) => import(fp)))
   /** @type {Record<string, Record<string, unknown>>} */
@@ -286,7 +289,8 @@ export default async function inlineConstants(babel, options, cwd) {
         ? url.pathToFileURL(
             resolve.sync(value, {basedir: path.dirname(state.filename)})
           ).href
-        : moduleResolve(value, url.pathToFileURL(state.filename)).href
+        : moduleResolve(value, url.pathToFileURL(state.filename), conditions)
+            .href
     } catch (error) {
       if (error.code === 'MODULE_NOT_FOUND' && ignoreModuleNotFound) {
         return
