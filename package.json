@@ -1,6 +1,6 @@
 {
   "name": "babel-plugin-inline-constants",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "Babel plugin to inline constants",
   "license": "MIT",
   "keywords": [
