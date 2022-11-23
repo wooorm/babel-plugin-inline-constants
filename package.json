@@ -48,7 +48,7 @@
     "tape": "^5.0.0",
     "type-coverage": "^2.0.0",
     "typescript": "^4.0.0",
-    "xo": "^0.50.0"
+    "xo": "^0.53.0"
   },
   "scripts": {
     "prepack": "npm run build && npm run format",
@@ -88,7 +88,8 @@
           "import/extensions": "off",
           "import/newline-after-import": "off",
           "unicorn/no-empty-file": "off",
-          "unicorn/prefer-module": "off"
+          "unicorn/prefer-module": "off",
+          "unicorn/prefer-node-protocol": "off"
         }
       }
     ]
