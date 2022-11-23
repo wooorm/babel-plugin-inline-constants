@@ -20,12 +20,10 @@
 
 import url from 'node:url'
 import path from 'node:path'
+import {builtinModules} from 'node:module'
 import resolve from 'resolve'
-// @ts-expect-error: untyped
-import builtins from 'builtins'
 import {moduleResolve} from 'import-meta-resolve'
 
-const listOfBuiltins = builtins()
 const conditions = new Set(['node', 'import'])
 const own = {}.hasOwnProperty
 
@@ -274,7 +272,7 @@ export default async function inlineConstants(babel, options, cwd) {
       )
     }
 
-    if (listOfBuiltins.includes(value)) {
+    if (builtinModules.includes(value)) {
       return 'node:' + value
     }
 
