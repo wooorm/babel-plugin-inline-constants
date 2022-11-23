@@ -1,21 +1,21 @@
-import assert from 'node:assert'
+import assert from 'node:assert/strict'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import {fileURLToPath} from 'node:url'
-import test from 'tape'
+import test from 'node:test'
 import babel from '@babel/core'
 import plugin from '../index.js'
 
-test('babel-plugin-inline-constants (core)', async function (t) {
+test('babel-plugin-inline-constants (core)', async function () {
   try {
     await babel.transformAsync('', {
       configFile: false,
       filename: 'index.js',
       plugins: [plugin]
     })
-    t.fail()
+    assert.fail()
   } catch (error) {
-    t.match(
+    assert.match(
       String(error),
       /expected a `modules` array to be passed/,
       'should fail when not passing `options.modules`'
@@ -27,19 +27,17 @@ test('babel-plugin-inline-constants (core)', async function (t) {
       configFile: false,
       plugins: [[plugin, {modules: ['./index.js']}]]
     })
-    t.fail()
+    assert.fail()
   } catch (error) {
-    t.match(
+    assert.match(
       String(error),
       /expected a `filename` to be set for files/,
       'should fail when not passing `filename` to babel'
     )
   }
-
-  t.end()
 })
 
-test('babel-plugin-inline-constants (fixtures)', async function (t) {
+test('babel-plugin-inline-constants (fixtures)', async function () {
   const base = new URL('fixtures/', import.meta.url)
   const files = await fs.readdir(base)
   const names = files.filter((d) => d.charAt(0) !== '.')
@@ -78,7 +76,7 @@ test('babel-plugin-inline-constants (fixtures)', async function (t) {
       actual = result.code
     } catch (error) {
       if (options.throws) {
-        t.throws(
+        assert.throws(
           function () {
             throw error
           },
@@ -101,8 +99,6 @@ test('babel-plugin-inline-constants (fixtures)', async function (t) {
       await fs.writeFile(new URL('expected-' + main, dir), actual)
     }
 
-    t.equal(actual, expected, name)
+    assert.equal(actual, expected, name)
   }
-
-  t.end()
 })
