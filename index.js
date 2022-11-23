@@ -6,6 +6,7 @@
  * @property {boolean} [ignoreModuleNotFound=false]
  *   Ignore the error when modules cannot be found
  *
+ * @typedef {import('@babel/core').PluginObj} PluginObj
  * @typedef {import('@babel/core').PluginPass} PluginPass
  * @typedef {import('@babel/core').NodePath} NodePath
  * @typedef {import('@babel/types').StringLiteral} StringLiteral
@@ -20,6 +21,7 @@
 import url from 'node:url'
 import path from 'node:path'
 import resolve from 'resolve'
+// @ts-expect-error: untyped
 import builtins from 'builtins'
 import {moduleResolve} from 'import-meta-resolve'
 
@@ -31,6 +33,7 @@ const own = {}.hasOwnProperty
  * @param {import('@babel/core')} babel
  * @param {Options} options
  * @param {string} cwd
+ * @returns {Promise<PluginObj>}
  */
 export default async function inlineConstants(babel, options, cwd) {
   const t = babel.types
@@ -49,6 +52,7 @@ export default async function inlineConstants(babel, options, cwd) {
   /** @type {Array<Record<string, unknown>>} */
   const values = await Promise.all(ids.map((fp) => import(fp)))
   /** @type {Record<string, Record<string, unknown>>} */
+  // @ts-expect-error: prevent prototype injection.
   const modules = {__proto__: null}
   let index = -1
 
@@ -113,8 +117,6 @@ export default async function inlineConstants(babel, options, cwd) {
     const localModules =
       state.inlineConstantsModules ||
       (state.inlineConstantsModules = Object.create(null))
-    /** @type {string?} */
-    let absolute
 
     if (
       p.node.type === 'VariableDeclarator' &&
@@ -128,7 +130,7 @@ export default async function inlineConstants(babel, options, cwd) {
       p.node.init.arguments[0] &&
       p.node.init.arguments[0].type === 'StringLiteral'
     ) {
-      absolute = find(p.node.init.arguments[0].value, state, true)
+      const absolute = find(p.node.init.arguments[0].value, state, true)
 
       if (absolute && own.call(modules, absolute)) {
         localModules[p.node.id.name] = modules[absolute].default
@@ -147,28 +149,18 @@ export default async function inlineConstants(babel, options, cwd) {
     const localModules =
       state.inlineConstantsModules ||
       (state.inlineConstantsModules = Object.create(null))
-    /** @type {string} */
-    let absolute
-    // Assume the exported thing is an object.
-    /** @type {Record<string, unknown>} */
-    let module
-    /** @type {Array<ImportSpecifier|ImportDefaultSpecifier|ImportNamespaceSpecifier>} */
-    let specifiers
-    /** @type {ImportSpecifier|ImportDefaultSpecifier|ImportNamespaceSpecifier} */
-    let specifier
-    /** @type {number} */
-    let index
 
     if (p.node.type === 'ImportDeclaration') {
-      absolute = find(p.node.source.value, state)
+      const absolute = find(p.node.source.value, state)
 
       if (absolute && own.call(modules, absolute)) {
-        module = modules[absolute]
-        specifiers = p.node.specifiers
-        index = -1
+        // Assume the exported thing is an object.
+        const module = modules[absolute]
+        const specifiers = p.node.specifiers
+        let index = -1
 
         while (++index < specifiers.length) {
-          specifier = specifiers[index]
+          const specifier = specifiers[index]
 
           if (
             specifier.type === 'ImportDefaultSpecifier' &&
@@ -227,12 +219,12 @@ export default async function inlineConstants(babel, options, cwd) {
       const object = p.node.object.name
       const prop = p.node.property.name
 
-      if (
-        state.inlineConstantsModules &&
-        typeof state.inlineConstantsModules === 'object' &&
-        object in state.inlineConstantsModules
-      ) {
-        if (!(prop in state.inlineConstantsModules[object])) {
+      const constants = /** @type {Record<string, Record<String, string>>} */ (
+        state.inlineConstantsModules
+      )
+
+      if (constants && typeof constants === 'object' && object in constants) {
+        if (!(prop in constants[object])) {
           throw new Error(
             'babel-plugin-inline-constants: cannot access `' +
               object +
@@ -242,7 +234,7 @@ export default async function inlineConstants(babel, options, cwd) {
           )
         }
 
-        p.replaceWith(toLiteral(state.inlineConstantsModules[object][prop]))
+        p.replaceWith(toLiteral(constants[object][prop]))
       }
     }
   }
@@ -253,13 +245,17 @@ export default async function inlineConstants(babel, options, cwd) {
    * @param {PluginPass} state
    */
   function identifier(p, state) {
+    const constants = /** @type {Record<string, string>} */ (
+      state.inlineConstantsModules
+    )
+
     if (
       p.node.type === 'Identifier' &&
-      state.inlineConstantsModules &&
-      typeof state.inlineConstantsModules === 'object' &&
-      p.node.name in state.inlineConstantsModules
+      constants &&
+      typeof constants === 'object' &&
+      p.node.name in constants
     ) {
-      p.replaceWith(toLiteral(state.inlineConstantsModules[p.node.name]))
+      p.replaceWith(toLiteral(constants[p.node.name]))
     }
   }
   /* c8 ignore next 8 */
@@ -268,12 +264,10 @@ export default async function inlineConstants(babel, options, cwd) {
    * @param {string} value
    * @param {PluginPass} state
    * @param {boolean} [cjs=false]
-   * @returns {string} Absolute path
+   * @returns {string|undefined}
+   *   Absolute path
    */
   function find(value, state, cjs) {
-    /** @type {string} */
-    let absolute
-
     if (!state.filename) {
       throw new TypeError(
         'babel-plugin-inline-constants: expected a `filename` to be set for files'
@@ -284,6 +278,9 @@ export default async function inlineConstants(babel, options, cwd) {
       return 'node:' + value
     }
 
+    /** @type {string} */
+    let absolute
+
     try {
       absolute = cjs
         ? url.pathToFileURL(
@@ -292,11 +289,12 @@ export default async function inlineConstants(babel, options, cwd) {
         : moduleResolve(value, url.pathToFileURL(state.filename), conditions)
             .href
     } catch (error) {
-      if (error.code === 'MODULE_NOT_FOUND' && ignoreModuleNotFound) {
+      const exception = /** @type {NodeJS.ErrnoException} */ (error)
+      if (exception.code === 'MODULE_NOT_FOUND' && ignoreModuleNotFound) {
         return
       }
 
-      throw error
+      throw exception
     }
 
     return absolute

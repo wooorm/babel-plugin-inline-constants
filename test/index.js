@@ -57,6 +57,7 @@ test('babel-plugin-inline-constants (fixtures)', async function (t) {
       /\r?\n$/,
       ''
     )
+    /** @type {Record<string, unknown> & {throws?: string}} */
     let options = {}
     let actual = ''
     let expected = ''
