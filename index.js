@@ -18,7 +18,7 @@
  * @typedef {import('@babel/types').ImportNamespaceSpecifier} ImportNamespaceSpecifier
  */
 
-import url from 'node:url'
+import {pathToFileURL} from 'node:url'
 import path from 'node:path'
 import {builtinModules} from 'node:module'
 import resolve from 'resolve'
@@ -43,7 +43,7 @@ export default async function inlineConstants(babel, options, cwd) {
   }
 
   const ignoreModuleNotFound = options.ignoreModuleNotFound
-  const base = url.pathToFileURL(cwd + path.sep)
+  const base = pathToFileURL(cwd + path.sep)
   const ids = options.modules.map(
     (d) => moduleResolve(d, base, conditions).href
   )
@@ -281,11 +281,10 @@ export default async function inlineConstants(babel, options, cwd) {
 
     try {
       absolute = cjs
-        ? url.pathToFileURL(
+        ? pathToFileURL(
             resolve.sync(value, {basedir: path.dirname(state.filename)})
           ).href
-        : moduleResolve(value, url.pathToFileURL(state.filename), conditions)
-            .href
+        : moduleResolve(value, pathToFileURL(state.filename), conditions).href
     } catch (error) {
       const exception = /** @type {NodeJS.ErrnoException} */ (error)
       if (exception.code === 'MODULE_NOT_FOUND' && ignoreModuleNotFound) {
