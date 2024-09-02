@@ -1,21 +1,15 @@
 /**
+ * @import {PluginObj, PluginPass, NodePath, default as Babel} from '@babel/core'
+ * @import {BooleanLiteral, NullLiteral, NumericLiteral, StringLiteral} from '@babel/types'
+ */
+
+/**
  * @typedef Options
  *   Configuration (required).
- * @property {string|Array<string>} modules
+ * @property {Array<string> | string} modules
  *   List of modules to inline
  * @property {boolean} [ignoreModuleNotFound=false]
  *   Ignore the error when modules cannot be found
- *
- * @typedef {import('@babel/core').PluginObj} PluginObj
- * @typedef {import('@babel/core').PluginPass} PluginPass
- * @typedef {import('@babel/core').NodePath} NodePath
- * @typedef {import('@babel/types').StringLiteral} StringLiteral
- * @typedef {import('@babel/types').NumericLiteral} NumericLiteral
- * @typedef {import('@babel/types').BooleanLiteral} BooleanLiteral
- * @typedef {import('@babel/types').NullLiteral} NullLiteral
- * @typedef {import('@babel/types').ImportSpecifier} ImportSpecifier
- * @typedef {import('@babel/types').ImportDefaultSpecifier} ImportDefaultSpecifier
- * @typedef {import('@babel/types').ImportNamespaceSpecifier} ImportNamespaceSpecifier
  */
 
 import {pathToFileURL} from 'node:url'
@@ -28,7 +22,7 @@ const conditions = new Set(['node', 'import'])
 const own = {}.hasOwnProperty
 
 /**
- * @param {import('@babel/core')} babel
+ * @param {Babel} babel
  * @param {Options} options
  * @param {string} cwd
  * @returns {Promise<PluginObj>}
