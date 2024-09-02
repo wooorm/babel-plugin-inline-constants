@@ -45,13 +45,13 @@ test('babel-plugin-inline-constants (fixtures)', async function () {
 
   while (++index < names.length) {
     const name = names[index]
-    const dir = new URL(name + '/', base)
-    const files = await fs.readdir(dir)
+    const folder = new URL(name + '/', base)
+    const files = await fs.readdir(folder)
     const main = files.find(
       (d) => path.basename(d, path.extname(d)) === 'index'
     )
     assert(main, 'expected `main`')
-    const input = String(await fs.readFile(new URL(main, dir))).replace(
+    const input = String(await fs.readFile(new URL(main, folder))).replace(
       /\r?\n$/,
       ''
     )
@@ -61,13 +61,15 @@ test('babel-plugin-inline-constants (fixtures)', async function () {
     let expected = ''
 
     try {
-      options = JSON.parse(String(await fs.readFile(new URL('opts.json', dir))))
+      options = JSON.parse(
+        String(await fs.readFile(new URL('opts.json', folder)))
+      )
     } catch {}
 
     try {
       const result = await babel.transformAsync(input, {
         configFile: false,
-        cwd: fileURLToPath(dir),
+        cwd: fileURLToPath(folder),
         filename: main,
         plugins: [[plugin, options]]
       })
@@ -91,12 +93,12 @@ test('babel-plugin-inline-constants (fixtures)', async function () {
     }
 
     try {
-      expected = String(await fs.readFile(new URL('expected-' + main, dir)))
+      expected = String(await fs.readFile(new URL('expected-' + main, folder)))
         .replace(/\r\n/g, '\n')
         .replace(/\n$/, '')
     } catch {
       expected = actual
-      await fs.writeFile(new URL('expected-' + main, dir), actual)
+      await fs.writeFile(new URL('expected-' + main, folder), actual)
     }
 
     assert.equal(actual, expected, name)

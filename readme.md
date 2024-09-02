@@ -8,18 +8,18 @@ Babel plugin to inline constants in code.
 
 ## Contents
 
-*   [What is this?](#what-is-this)
-*   [When should I use this?](#when-should-i-use-this)
-*   [Install](#install)
-*   [Use](#use)
-*   [API](#api)
-    *   [`inlineConstants`](#inlineconstants)
-*   [Types](#types)
-*   [Compatibility](#compatibility)
-*   [Security](#security)
-*   [Related](#related)
-*   [Contribute](#contribute)
-*   [License](#license)
+* [What is this?](#what-is-this)
+* [When should I use this?](#when-should-i-use-this)
+* [Install](#install)
+* [Use](#use)
+* [API](#api)
+  * [`inlineConstants`](#inlineconstants)
+* [Types](#types)
+* [Compatibility](#compatibility)
+* [Security](#security)
+* [Related](#related)
+* [Contribute](#contribute)
+* [License](#license)
 
 ## What is this?
 
@@ -155,8 +155,8 @@ This package is safe assuming you trust the code you use.
 
 ## Related
 
-*   [`babel-plugin-undebug`](https://github.com/wooorm/babel-plugin-undebug)
-    — remove `debug`
+* [`babel-plugin-undebug`](https://github.com/wooorm/babel-plugin-undebug)
+  — remove `debug`
 
 ## Contribute
 

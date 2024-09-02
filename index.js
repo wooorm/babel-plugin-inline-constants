@@ -215,24 +215,24 @@ export default async function inlineConstants(babel, options, cwd) {
       p.node.property.type === 'Identifier'
     ) {
       const object = p.node.object.name
-      const prop = p.node.property.name
+      const property = p.node.property.name
 
       const constants = /** @type {Record<string, Record<String, string>>} */ (
         state.inlineConstantsModules
       )
 
       if (constants && typeof constants === 'object' && object in constants) {
-        if (!(prop in constants[object])) {
+        if (!(property in constants[object])) {
           throw new Error(
             'babel-plugin-inline-constants: cannot access `' +
               object +
               '.' +
-              prop +
+              property +
               '`, it’s not defined'
           )
         }
 
-        p.replaceWith(toLiteral(constants[object][prop]))
+        p.replaceWith(toLiteral(constants[object][property]))
       }
     }
   }
